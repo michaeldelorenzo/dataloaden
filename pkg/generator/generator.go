@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"unicode"
 
@@ -24,8 +25,8 @@ type templateData struct {
 	Slice      bool
 }
 
-func Generate(typename string, keyType string, slice bool, wd string) error {
-	data, err := getData(typename, keyType, slice, wd)
+func Generate(typename string, keyType string, slice bool, loaderDir, wd string) error {
+	data, err := getData(typename, keyType, slice, loaderDir, wd)
 	if err != nil {
 		return err
 	}
@@ -35,14 +36,36 @@ func Generate(typename string, keyType string, slice bool, wd string) error {
 		filename = fmt.Sprintf("%s_sliceloader_gen.go", underScoreString(data.Name))
 	}
 
-	if err := writeTemplate(filepath.Join(wd, filename), data); err != nil {
+	if err := writeTemplate(filepath.Join(loaderDir, filename), data); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func getData(typeName string, keyType string, slice bool, wd string) (templateData, error) {
+func underScoreString(str string) string {
+
+	// convert every letter to lower case
+	newStr := strings.ToLower(str)
+
+	// convert all spaces/tab to underscore
+	regExp := regexp.MustCompile("[[:space:][:blank:]]")
+	newStrByte := regExp.ReplaceAll([]byte(newStr), []byte("_"))
+
+	regExp = regexp.MustCompile("`[^a-z0-9]`i")
+	newStrByte = regExp.ReplaceAll(newStrByte, []byte("_"))
+
+	regExp = regexp.MustCompile("[!/']")
+	newStrByte = regExp.ReplaceAll(newStrByte, []byte("_"))
+
+	// and remove underscore from beginning and ending
+
+	newStr = strings.TrimPrefix(string(newStrByte), "_")
+	newStr = strings.TrimSuffix(newStr, "_")
+
+	return newStr
+}
+
 
 func getData(typeName string, keyType string, slice bool, loaderDir, wd string) (templateData, error) {
 	var data templateData
@@ -59,7 +82,12 @@ func getData(typeName string, keyType string, slice bool, loaderDir, wd string) 
 		return templateData{}, fmt.Errorf("unable to find package info for " + wd)
 	}
 
-	data.Package = genPkg.Name
+	loaderPackageName := getLoaderPackageName(loaderDir)
+	if loaderPackageName == nil {
+		return templateData{}, fmt.Errorf("unable to generate loader package name from %s", loaderDir)
+	}
+
+	data.Package = *loaderPackageName
 	data.LoaderName = name + "Loader"
 	data.BatchName = lcFirst(name) + "Batch"
 	data.Name = lcFirst(name)
@@ -84,6 +112,15 @@ func getData(typeName string, keyType string, slice bool, loaderDir, wd string) 
 	return data, nil
 }
 
+func getLoaderPackageName(dir string) *string {
+	p := strings.Split(dir, "/")
+	if len(p) == 0 {
+		return nil
+	}
+
+	return &p[len(p)-1]
+}
+
 func getPackage(dir string) *packages.Package {
 	p, _ := packages.Load(&packages.Config{
 		Dir: dir,
@@ -95,6 +132,7 @@ func getPackage(dir string) *packages.Package {
 
 	return p[0]
 }
+
 
 func writeTemplate(filepath string, data templateData) error {
 	var buf bytes.Buffer
