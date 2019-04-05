@@ -1,4 +1,4 @@
-### The DATALOADer gENerator [![CircleCI](https://circleci.com/gh/Vektah/dataloaden.svg?style=svg)](https://circleci.com/gh/Vektah/dataloaden) [![Go Report Card](https://goreportcard.com/badge/github.com/vektah/dataloaden)](https://goreportcard.com/report/github.com/vektah/dataloaden) [![codecov](https://codecov.io/gh/vektah/dataloaden/branch/master/graph/badge.svg)](https://codecov.io/gh/vektah/dataloaden)
+### The DATALOADer gENerator [![CircleCI](https://circleci.com/gh/michaeldelorenzo/dataloaden.svg?style=svg)](https://circleci.com/gh/michaeldelorenzo/dataloaden) [![Go Report Card](https://goreportcard.com/badge/github.com/michaeldelorenzo/dataloaden)](https://goreportcard.com/report/github.com/michaeldelorenzo/dataloaden) [![codecov](https://codecov.io/gh/michaeldelorenzo/dataloaden/branch/master/graph/badge.svg)](https://codecov.io/gh/michaeldelorenzo/dataloaden)
 
 Requires golang 1.11+ for modules support.
 
@@ -12,7 +12,7 @@ get used.
 
 First grab it:
 ```bash
-go get -u github.com/vektah/dataloaden
+go get -u github.com/michaeldelorenzo/dataloaden
 ```
 
 then from inside the package you want to have the dataloader in:
@@ -67,7 +67,7 @@ Create a tools.go that looks like this:
 
 package main
 
-import _ "github.com/vektah/dataloaden"
+import _ "github.com/michaeldelorenzo/dataloaden"
 ```
 
 This will allow go modules to see the dependency.
