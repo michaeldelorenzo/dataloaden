@@ -30,9 +30,9 @@ func Generate(typename string, keyType string, slice bool, wd string) error {
 		return err
 	}
 
-	filename := data.Name + "loader_gen.go"
+	filename := fmt.Sprintf("%s_loader_gen.go", underScoreString(data.Name))
 	if data.Slice {
-		filename = data.Name + "sliceloader_gen.go"
+		filename = fmt.Sprintf("%s_sliceloader_gen.go", underScoreString(data.Name))
 	}
 
 	if err := writeTemplate(filepath.Join(wd, filename), data); err != nil {
@@ -43,6 +43,8 @@ func Generate(typename string, keyType string, slice bool, wd string) error {
 }
 
 func getData(typeName string, keyType string, slice bool, wd string) (templateData, error) {
+
+func getData(typeName string, keyType string, slice bool, loaderDir, wd string) (templateData, error) {
 	var data templateData
 	parts := strings.Split(typeName, ".")
 	if len(parts) < 2 {
